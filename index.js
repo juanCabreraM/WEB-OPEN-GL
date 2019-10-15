@@ -25,7 +25,7 @@ mat4.lookAt(viewMatrix, [0,0,2], [0,0,0], [0,1,0])
 
 var drawCube
 
-loadObj('./cube.obj',function(obj){
+loadObj('./disk.obj',function(obj){
 	console.log(obj)
 	//creat the atribute
 
@@ -41,7 +41,8 @@ loadObj('./cube.obj',function(obj){
 	 uTime: regl.prop('time'),
 	 uProjectionMatrix: projectionMatrix,
 	 uViewMatrix: regl.prop('view1'),
-	 uTranslate: regl.prop('translate')
+	 uTranslate: regl.prop('translate'),
+	 uColor: regl.prop('color')
 	 },
 	 
 	 frag: fragShader,
@@ -86,29 +87,31 @@ const clear = () => {
 function render (){
 	currTime += 0.01
 
-    //var cameraRad = 0.5;
-    //var cameraX = Math.sin(currTime)*cameraRad
-    //var cameraY = Math.cos(currTime)*cameraRad
+    var cameraRad = 0.5;
+    var cameraX = Math.sin(currTime)*cameraRad
+    var cameraY = Math.cos(currTime)*cameraRad
+    
     //mat4.lookAt(viewMatrix, [mouseX*2,mouseY*5,30], [0,0,0], [0,1,0])
-    mat4.lookAt(viewMatrix, [mouseX*20,mouseY*20,60], [0,0,0], [0,1,0])
+    mat4.lookAt(viewMatrix, [cameraX*5,0.5,cameraY*5], [0,0,0], [0,1,0])
     
     //el modelo siempre tardara un tiempo antes de cargar completo
     //con esta funcion hasta no cargar el modelo no se activara el renderizado
     
     clear()
     if (drawCube != undefined){
-        var num = 50;
+        var num = 30;
 
     	for(i = 0; i<num;i++){
-    		for(j=0; j<num; j++){
-    		  var obj={
-    	      time: currTime,
-    	      projection: projectionMatrix,
-    	      view1: viewMatrix,
-    	      translate: [i*2-num,j*2-num,0]
-    		  }
-    		drawCube(obj)
-            }    	    
+    		for(j=0; j<num; j++){    			
+    				var obj={
+    	            time: currTime,
+    	            projection: projectionMatrix,
+    	            view1: viewMatrix,
+    	            translate: [i*2-num,j*2-num,1],
+    	            color: [i/num, j/num, 0]
+    	        }
+    		    drawCube(obj)
+    		}    	    
     	}    	
     }
     
