@@ -1,10 +1,12 @@
 const regl = require('regl')()
 
-const strVertex = require('./shaders/shaderVertex.js')
-const fragShader = require('./shaders/fragShader.js')
+const strVertex = require('./shaders/shaderVertex2.js')
+const fragShader = require('./shaders/fragShader2.js')
 const loadObj = require('./utils/loadObj.js')
 
 console.log('loadObj', loadObj)
+
+//////////////////////////////////////////////////////////////////
 
 const glm = require('gl-matrix')
 var mat4 = glm.mat4
@@ -18,6 +20,39 @@ mat4.perspective(projectionMatrix,fovy,aspect,near,far)
 
 var viewMatrix = mat4.create()
 mat4.lookAt(viewMatrix, [0,0,2], [0,0,0], [0,1,0])
+
+//////////////////////////////////////////////////////////////////
+
+var drawCube
+
+loadObj('./cube.obj',function(obj){
+	console.log(obj)
+	//creat the atribute
+
+    var attributes = {
+	  aPositions: regl.buffer(obj.positions),
+	  aUV: regl.buffer(obj.uvs)
+    }
+	//create our draw call
+
+	drawCube = regl(
+    {
+     uniforms: {
+	 uTime: regl.prop('time'),
+	 uProjectionMatrix: projectionMatrix,
+	 uViewMatrix: regl.prop('view1'),
+	 uTranslate: regl.prop('translate')
+	 },
+	 
+	 frag: fragShader,
+	 vert: strVertex,
+	 attributes: attributes,
+	 count: obj.count
+
+	})
+})
+
+///////////////////////////////////////////////////////////////////
 
 var currTime = 0
 
@@ -38,113 +73,48 @@ window.addEventListener('mousemove', function(e){
 	mouseY = percentY  * moveRange
 })
 
+//////////////////////////////////////////////////////////////////
+
 const clear = () => {
   regl.clear({
     color: [0, 0, 0, 1]
   })
 }
 
-var r= 0.45
-
-const points = [
-[-r, r, 0],
-[r, r, 0],
-[r, -r, 0],
-[-r,r,0],
-[r,-r,0],
-[-r,-r,0]
-]
-
-var colors = [
-[1,0,0],
-[0.3,1,0],
-[0,0.5,1],
-[0,0.5,1],
-[0.3,1,0],
-[1,0,0]
-]
-
-var uvs = [
- [0,0],
- [1,0],
- [1,1],
-
- [0,0],
- [1,1],
- [0,1]
-]
-
-var attributes = {
-	aPositions: regl.buffer(points),
-	aColor: regl.buffer(colors),
-	aUV: regl.buffer(uvs)
-}
-
-const drawTriangle = regl(
-    {
-     uniforms: {
-	 uTime: regl.prop('time'),
-	 uProjectionMatrix: projectionMatrix,
-	 uViewMatrix: regl.prop('view1'),
-	 uTranslate: regl.prop('translate')
-
-     },
-	 
-	 frag: fragShader,
-	 vert: strVertex,
-	 attributes: attributes,
-
-     depth: {
-     	enable: false,
-     },
-
-     blend: {
-       enable: true,
-       func: {
-         srcRGB: 'src alpha',
-         srcAlpha: 'src alpha',
-         dstRGB: 'one minus src alpha',
-         dstAlpha: 'one minus src alpha',
-         }
-        },
-
-	 count: 6
-    }
-)
-
-
+//////////////////////////////////////////////////////////////////
 
 function render (){
 	currTime += 0.01
 
-    var cameraRad = 0.5;
-    var cameraX = Math.sin(currTime)*cameraRad
-    var cameraY = Math.cos(currTime)*cameraRad
-    mat4.lookAt(viewMatrix, [mouseX*2,mouseY*5,30], [0,0,0], [0,1,0])
-
-    console.log('render')
+    //var cameraRad = 0.5;
+    //var cameraX = Math.sin(currTime)*cameraRad
+    //var cameraY = Math.cos(currTime)*cameraRad
+    //mat4.lookAt(viewMatrix, [mouseX*2,mouseY*5,30], [0,0,0], [0,1,0])
+    mat4.lookAt(viewMatrix, [mouseX*20,mouseY*20,60], [0,0,0], [0,1,0])
+    
+    //el modelo siempre tardara un tiempo antes de cargar completo
+    //con esta funcion hasta no cargar el modelo no se activara el renderizado
+    
     clear()
+    if (drawCube != undefined){
+        var num = 50;
 
-    var numb =50;
-    var start = -numb /2
-
-    for (var i = 0; i < numb; i ++) {
-    	for (var g = 0; g <numb; g++){
-    		//for (var k = 0; k <numb; k++){
-    			var x=start+i;
-    			var y=start+g;
-    			//var z=start+k;
-
-    	        var obj = {
-		         time: currTime,
-		         view1: viewMatrix,
-		         translate: [x,y,1]
-		        }
-		     drawTriangle(obj) 
-	        //} 
-	    }
-	 }	     
-
+    	for(i = 0; i<num;i++){
+    		for(j=0; j<num; j++){
+    		  var obj={
+    	      time: currTime,
+    	      projection: projectionMatrix,
+    	      view1: viewMatrix,
+    	      translate: [i*2-num,j*2-num,0]
+    		  }
+    		drawCube(obj)
+            }    	    
+    	}    	
+    }
+    
+    console.log('render')
+    
+    
     window.requestAnimationFrame(render)
 }
 

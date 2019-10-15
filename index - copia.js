@@ -2,6 +2,13 @@ const regl = require('regl')()
 
 const strVertex = require('./shaders/shaderVertex.js')
 const fragShader = require('./shaders/fragShader.js')
+const loadObj = require('./utils/loadObj.js')
+
+console.log('loadObj', loadObj)
+
+loadObj('./cube.obj',function(){
+	console.log('loadObj')
+})
 
 const glm = require('gl-matrix')
 var mat4 = glm.mat4
@@ -41,7 +48,7 @@ const clear = () => {
   })
 }
 
-var r= 0.45
+var r= 0.2
 
 const points = [
 [-r, r, 0],
@@ -117,7 +124,7 @@ function render (){
     var cameraRad = 0.5;
     var cameraX = Math.sin(currTime)*cameraRad
     var cameraY = Math.cos(currTime)*cameraRad
-    mat4.lookAt(viewMatrix, [mouseX*2,mouseY*5,1], [0,0,0], [0,1,0])
+    mat4.lookAt(viewMatrix, [mouseX*2,mouseY*5,30], [0,0,0], [0,1,0])
 
     console.log('render')
     clear()
