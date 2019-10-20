@@ -1,17 +1,20 @@
 module.exports =
 `
 precision mediump float;
+//define the atributes of the object
 attribute vec3 aPositions;
 attribute vec2 aUV;
 
+//define the uniforms of the object
 uniform float uTime;
 uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
 uniform vec3 uTranslate;
 
+//define the varying atributes of the object
 varying vec2 vUV;
-varying float vYPosition;
 
+//define the noise function
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
 vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 vec3 fade(vec3 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
@@ -84,17 +87,19 @@ float cnoise(vec3 P){
   return 2.2 * n_xyz;
 }
 
+//define the function calling 
 void main() {
   vec3 pos = aPositions + uTranslate;
-  pos *= 0.1;
+  pos *= 0.5;
 
-  float noiseScale = 0.2;
-  float noiseSize = 2.0;
+  float noiseScale = 5.0;
+  float noiseSize = 1.5;
 
-    pos= pos.xzy;
-    float noise1 = cnoise(vec3(uTranslate.y * 0.5, uTranslate.x * 0.5, uTime*0.25));
-    float noise = cnoise(vec3(uTranslate.x * noiseScale, uTranslate.y *noiseScale - uTime, noise1 ));
-    pos= pos + noise *noiseSize;
+    pos= pos.zyx;
+    float noise1 = cnoise(vec3(uTranslate.x , uTranslate.y, uTime*0.5));
+    
+    pos= pos + noise1 *noiseSize;
+
 
 	gl_Position = uProjectionMatrix * uViewMatrix * vec4(pos, 1.0);
   vUV = aUV;
