@@ -44,7 +44,7 @@ window.addEventListener('mousemove', function(e){
 
 const clear = () => {
   regl.clear({
-    color: [0, 0, 0, 1]
+    color: [0.5, 0.5,0.5, 1.0]
   })
 }
 
@@ -124,12 +124,12 @@ function render (){
     var cameraRad = 0.5;
     var cameraX = Math.sin(currTime)*cameraRad
     var cameraY = Math.cos(currTime)*cameraRad
-    mat4.lookAt(viewMatrix, [mouseX*2,mouseY*5,30], [0,0,0], [0,1,0])
+    mat4.lookAt(viewMatrix, [mouseX*2,mouseY*5,5], [0,0,0], [0,1,0])
 
     console.log('render')
     clear()
 
-    var numb =50;
+    var numb =10;
     var start = -numb /2
 
     for (var i = 0; i < numb; i ++) {
@@ -142,10 +142,10 @@ function render (){
     	        var obj = {
 		         time: currTime,
 		         view1: viewMatrix,
-		         translate: [x,y,1]
+		         translate: [x,y,5]
 		        }
 		     drawTriangle(obj) 
-	        //} 
+	       // } 
 	    }
 	 }	     
 

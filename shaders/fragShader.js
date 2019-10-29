@@ -57,7 +57,7 @@ float noise(vec2 n) {
   void main() {
 
     vec3 finalColor = uTranslate / 5.0*0.5+0.5;
-    gl_FragColor = vec4(finalColor,1.0);
+    //gl_FragColor = vec4(finalColor,1.0);
 
     vec3 red = vec3 (0.0,0.8,1.0);
     vec3 yellow = vec3(1.0,0.8,0.0);

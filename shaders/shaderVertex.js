@@ -91,7 +91,7 @@ void main() {
 	vec3 pos = aPositions + uTranslate;
 
     float noiseScale = 0.1;
-    float noiseSize = 3.0;
+    float noiseSize = 1.0;
 
     pos= pos.xzy;
     float noise1 = cnoise(vec3(uTranslate.y * 0.5, uTranslate.x * 0.5, uTime*0.25));

@@ -13,8 +13,12 @@
   "devDependencies": {},
   "scripts": {
     "start": "budo index.js --live -- -t babelify",
+    "start01": "budo indexdisk.js --live -- -t babelify",
+    "start02": "budo indexC4D.js --live -- -t babelify",
     "run start": "budo index2.js --live -- -t babelify",
+    "texture": "budo texture.js --live -- -t babelify",
     "test": "echo \"Error: no test specified\" && exit 1"
+
   },
   "author": "",
   "license": "ISC"
