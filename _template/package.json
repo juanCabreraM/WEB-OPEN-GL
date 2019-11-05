@@ -1,0 +1,31 @@
+{
+  "name": "template-dfpi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@babel/core": "^7.6.2",
+    "babelify": "^10.0.0",
+    "geom-parse-obj": "^1.0.0",
+    "gl-matrix": "^3.1.0",
+    "regl": "^1.3.13",
+    "socket.io-client": "^2.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "budo index.js --live -- -t babelify",
+    "start02": "budo index02.js --live -- -t babelify",
+    "multipleCircle": "budo indexMultipleCircles.js --live -- -t babelify",
+    "fragment": "budo indexMultipleFragmentShader.js --live -- -t babelify",
+    "texture": "budo texture.js --live -- -t babelify",
+    "model": "budo indexLoadObj.js --live -- -t babelify",
+    "uv": "budo indexLoadUVObj.js --live -- -t babelify",
+    "bauhaus": "budo indexBauhaus.js --live -- -t babelify",
+    "bauhaus2": "budo indexBauhaus2.js --live -- -t babelify",
+    "bauhaus3": "budo indexBauhaus3.js --live -- -t babelify",
+    "test": "budo test.js --live -- -t babelify",
+    "remote": "budo indexSocketRotation.js --live -- -t babelify"
+  },
+  "author": "",
+  "license": "ISC"
+}

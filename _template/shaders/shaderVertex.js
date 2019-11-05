@@ -1,26 +1,21 @@
 module.exports =
 `
 precision mediump float;
-attribute vec3 aPositions;
+attribute vec3 aPosition;
+attribute vec3 color;
 attribute vec2 aUV;
 
-
+uniform float uTime;
 uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
-uniform vec3 uMouse;
 
-uniform float uTime;
 uniform vec3 uTranslate;
-//uniform vec3 uScale;
 
 varying vec3 vColor;
 varying vec2 vUV;
-varying float vNoiseX;
-varying float vNoiseY;
+varying float vYPosition;
 
-//  Classic Perlin 3D Noise 
-//  by Stefan Gustavson
-//
+
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
 vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 vec3 fade(vec3 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
@@ -94,48 +89,22 @@ float cnoise(vec3 P){
 }
 
 
-//  <https://www.shadertoy.com/view/Xd23Dh>
-//  by inigo quilez <http://iquilezles.org/www/articles/voronoise/voronoise.htm>
-//
-
-vec3 hash3( vec2 p ){
-    vec3 q = vec3( dot(p,vec2(127.1,311.7)), 
-           dot(p,vec2(269.5,183.3)), 
-           dot(p,vec2(419.2,371.9)) );
-  return fract(sin(q)*43758.5453);
-}
-
 void main() {
+  // create holder for position
+  vec3 pos = aPosition + uTranslate;
   
-  //float diastance = Map.
-
-
-  vec3 mousePos = uMouse;
-  float distToMouse = distance(mousePos, uTranslate);
-  float maxRadius = 30.0;
-  float minRadius = 1.0;
-  float mouseScale= sin(maxRadius + uTime*4.0);
-  maxRadius += mouseScale*15.0;
-  float radiusScale = smoothstep(minRadius, maxRadius, distToMouse);
-
-
-
-  vec3 pos = aPositions;
-
-  float noiseX = cnoise(uTranslate + uTime * 0.2) * .5 + .5;
-  float noiseY = cnoise(uTranslate.zyx + uTime * 0.2) * .5 + .5;
+  float noiseScale = 0.1;
+  float noiseSize = 3.0;
   
-  //pos *= uScale;
-  pos.x *= noiseX * 3.0;
-  pos.y *= noiseY * 3.0;
-  pos.xy *= radiusScale;
-  pos += uTranslate; 
+  
+  pos = pos.xzy;
+  float noise1 = cnoise(vec3(uTranslate.y * 5.0, uTranslate.x * 5.0, uTime * 0.25));
+  float noise = cnoise(vec3(uTranslate.x * noiseScale, uTranslate.y * noiseScale - uTime, noise1));
+  pos.y = noise * noiseSize;
+  vYPosition = noise;
+  
 
-  gl_Position = uProjectionMatrix * uViewMatrix * vec4(pos, 1.0);   
-
-  //vColor = aColor;
+  gl_Position = uProjectionMatrix * uViewMatrix * vec4(pos, 1.0);
+  vColor = color;
   vUV = aUV;
-  vNoiseX = noiseX;
-  vNoiseY = noiseY;
-}				
-`
+}`

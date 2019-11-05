@@ -10,6 +10,40 @@ const fragShader = require('./shaders/fragShader.js')
 const loadObj = require('./utils/loadObj.js')
 
 //////////////////////////////////////////////////////////////////
+//create socket control
+const io = require('socket.io-client')
+
+// PUT YOUR IP HERE TOO
+const socket = io('http://192.168.43.155:9876')
+
+function map (value, start, end, newStart, newEnd){
+    var percent = (value - start) / (end - start)
+    if(percent<0){
+        percent = 0;
+    }
+    if(percent>0){
+        percent = 1;
+    }
+    var newValue = newStart + (newEnd - newStart) + percent
+    return newValue
+}
+
+//define the mouseX and mouseY variables
+var mouseX=0
+var mouseY=0
+
+
+//control de camara with a remote control 
+socket.on('touch', function (objTouch) {
+    var moveRange = 100
+
+    mouseX = (objTouch.touchX - 0.5) * moveRange
+    mouseY = (objTouch.touchY - 0.5) * moveRange
+
+    console.log(objTouch, mouseX, mouseY)
+})
+
+//////////////////////////////////////////////////////////////////
 //camera settings 
 // create and define the projection matrix of the camera image
 var projectionMatrix = mat4.create()
@@ -27,25 +61,6 @@ mat4.lookAt(viewMatrix, [0,0,2], [0,0,0], [0,1,0])
 ///////////////////////////////////////////////////////////////////
 // defin the time for animation
 var currTime = 0
-
-//define the mouseX and mouseY variables
-var mouseX=0
-var mouseY=0
-
-
-//define the movment range and listen function por the mouse movment
-window.addEventListener('mousemove', function(e){
-	
-	var percentX = e.clientX / window.innerWidth
-	var percentY = e.clientY / window.innerHeight
-
-	percentX = percentX * 2 - 1
-	percentY = percentY * 2 - 1
-
-	var moveRange = 110
-	mouseX = -percentX * moveRange
-	mouseY = percentY  * moveRange
-})
 
 //////////////////////////////////////////////////////////////////
 // clear the background in each frame
@@ -89,6 +104,7 @@ loadObj('./assets/cube.obj', function(obj){
 //define the render function
 function render (){
     //define the time for each frame
+
 	
     clear()
     //set the movment that the camera will have if it is required
@@ -96,7 +112,7 @@ function render (){
     var cameraX = Math.sin(currTime)*cameraRad
     var cameraY = Math.cos(currTime)*cameraRad
     //define the camara movment and interaction with the mouse
-    mat4.lookAt(viewMatrix, [cameraX,cameraY,50], [0,0,0], [0,1,0])
+    mat4.lookAt(viewMatrix, [cameraX,cameraY,150], [0,0,0], [0,1,0])
     //clear the drawing for each frame
     currTime += 0.01
 
@@ -119,7 +135,7 @@ function render (){
                  view: viewMatrix,
                  translate: [x,y,1],
                  cubeScale: [0,0,0],
-                 mouseMo: [-mouseX*1.5 ,-mouseY,0]
+                 mouseMo: [mouseX ,mouseY,0]
                 } 
              drawCube(obj) 
             }
