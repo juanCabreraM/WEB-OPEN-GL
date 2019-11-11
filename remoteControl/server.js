@@ -1,15 +1,18 @@
 // server.js
 
-//crear el servidos
+// WEB SOCKETS
 const PORT_SOCKET = 9876
 const app = require('express')()
 const server = app.listen(PORT_SOCKET)
-
-//metodo de comunicacion
 const io = require('socket.io')(server)
 
-// WEB SOCKETS
+// OSC
+const PORT_OSC = 32000
+const OscReceiver = require('osc-receiver')
+const receiver = new OscReceiver()
+receiver.bind(PORT_OSC)
 
+// EVENT LISTENERS FROM WEBSOCKET
 io.on('connection', (socket) => _onConnected(socket))
 
 function dispatch (socket, eventName) {
@@ -23,24 +26,23 @@ function _onConnected (socket) {
 
   socket.on('disconnect', () => _onDisconnected())
 
-  //getting event/data from remote control
-  //conection remote to server
-  //socket.on('test', function (objReceived){
-    //if(Math.random()>0.99){
-      //console.log('obj received : ',objReceived)
-    //}
-    
-
-
-    //sending event/data to front end
-    //conection server to frontend
-    //io.emit('test From Server', objReceived)
-  //})
-
   dispatch(socket, 'cameramove')
   dispatch(socket, 'tilt')
 }
 
 function _onDisconnected () {
-  //console.log('A user is disconnected')
+  console.log('A user is disconnected')
 }
+
+// EVENT LISTENERS FROM OSC
+receiver.on('/server/connect', function () {
+  console.log('OSC connected')
+})
+
+receiver.on('/server/disconnect', function () {
+  console.log('OSC disconnected')
+})
+
+receiver.on('/mousemove', function (x, y) {
+  console.log('OSC mouse move ', x, y)
+})

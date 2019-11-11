@@ -4,8 +4,7 @@ const io = require('socket.io-client')
 const GL = alfrid.GL
 
 // PUT YOUR OWN IP HERE
-const socket = io('http://10.98.28.76:9876')
-//const socket = io('http://192.168.43.155:9876')
+const socket = io('http://10.97.80.223:9876')
 
 const canvas = document.createElement('canvas')
 document.body.appendChild(canvas)
@@ -14,28 +13,6 @@ canvas.style.margin = 0
 canvas.style.padding = 0
 canvas.style.top = 0
 canvas.style.left = 0
-
-var mouseX = 0;
-var mouseY = 0;
-
-
-window.addEventListener('mousemove', function (event){
-  var percentX = event.clientX / window.innerWidth
-  var percentY = event.clientY / window.innerHeight
-  
-  mouseX = percentX 
-  mouseY = percentY 
- console.log(mouseX,mouseY)
-}) 
-
-  //window.addEventListener('touchmove', function (event){
-    //mouseX = event.touches[0].pageX 
-    //mouseY = event.touches[0].pageY 
-
-    //mouseX = mouseX / window.innerWidth
-    //mouseY = mouseY / window.innerHeight
-   //console.log(mouseX,mouseY)
-  //}) 
 
 GL.init(canvas, { alpha: false })
 
@@ -77,18 +54,10 @@ function render () {
   bDots.draw()
   drawCube.draw()
 
-  var objTouch = {
-    touchX : mouseX,
-    touchY : mouseY
-  }
-
-  socket.emit('touch',objTouch)
-
-  socket.emit('cameramove',{
+  socket.emit('cameramove', {
     view: camera.matrix,
     projection: camera.projection
   })
-
 }
 
 alfrid.Scheduler.addEF(render)
@@ -97,6 +66,13 @@ window.addEventListener('resize', () => {
   GL.setSize(window.innerWidth, window.innerHeight)
   camera.setAspectRatio(GL.aspectRatio)
 })
+
+window.addEventListener('touchmove', (e) => {
+  console.log(e.touches.length)
+  if (e.touches.length > 1) {
+    e.preventDefault()
+  }
+}, false)
 
 window.ondeviceorientationabsolute = (e) => {
   // console.log('orientation absolute', e.alpha, e.beta, e.gamma)

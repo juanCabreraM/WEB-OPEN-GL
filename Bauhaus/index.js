@@ -14,15 +14,16 @@ const loadObj = require('./utils/loadObj.js')
 const io = require('socket.io-client')
 
 // PUT YOUR IP HERE TOO
-const socket = io('http://192.168.43.155:9876')
+const socket = io('http://10.98.28.76:9876')
+//const socket = io('http://192.168.43.155:9876')
 
 function map (value, start, end, newStart, newEnd){
     var percent = (value - start) / (end - start)
-    if(percent<0){
-        percent = 0;
+    if(percent<1){
+        percent = 0
     }
-    if(percent>0){
-        percent = 1;
+    if(percent>1){
+        percent = 1
     }
     var newValue = newStart + (newEnd - newStart) + percent
     return newValue
@@ -37,10 +38,12 @@ var mouseY=0
 socket.on('touch', function (objTouch) {
     var moveRange = 100
 
-    mouseX = (objTouch.touchX - 0.5) * moveRange
-    mouseY = (objTouch.touchY - 0.5) * moveRange
+    //x = map (objTouch.touchX, 0, 1, 0, 1)
+    //y = map (objTouch.touchY, 0, 1, 0, 1)
 
-    console.log(objTouch, mouseX, mouseY)
+    mouseX = (objTouch.touchX-0.5) * moveRange
+    mouseY = -(objTouch.touchY-0.5) * moveRange
+    console.log(mouseX, mouseY)
 })
 
 //////////////////////////////////////////////////////////////////
@@ -112,7 +115,7 @@ function render (){
     var cameraX = Math.sin(currTime)*cameraRad
     var cameraY = Math.cos(currTime)*cameraRad
     //define the camara movment and interaction with the mouse
-    mat4.lookAt(viewMatrix, [cameraX,cameraY,150], [0,0,0], [0,1,0])
+    mat4.lookAt(viewMatrix, [cameraX,cameraY,100], [0,0,0], [0,1,0])
     //clear the drawing for each frame
     currTime += 0.01
 
@@ -146,6 +149,16 @@ function render (){
 }
 //calling the render function and print the final image
 render()
+
+window.addEventListener('resize', function (){
+    regl.poll()
+    var fov = 75 * Math.PI / 180
+    var aspect = window.innerWidth / window.innerHeight
+    mat4.perspective(projectionMatrix, fov, aspect, 0.01, 1000.0)
+
+    var viewMatrix = mat4.create()
+    mat4.lookAt(viewMatrix, [0,0,2], [0,0,0], [0,1,0])
+})
 
 
                
