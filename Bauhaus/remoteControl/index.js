@@ -4,8 +4,9 @@ const io = require('socket.io-client')
 const GL = alfrid.GL
 
 // PUT YOUR OWN IP HERE
-const socket = io('http://10.98.28.76:9876')
-//const socket = io('http://192.168.43.155:9876')
+//const socket = io('http://10.97.247.72:9967')
+//const socket = io('http://10.97.231.186:9876')
+const socket = io('http://192.168.43.155:9876')
 
 const canvas = document.createElement('canvas')
 document.body.appendChild(canvas)
@@ -15,34 +16,51 @@ canvas.style.padding = 0
 canvas.style.top = 0
 canvas.style.left = 0
 
-var mouseX = 0;
-var mouseY = 0;
-
-
-window.addEventListener('mousemove', function (event){
-  var percentX = event.clientX / window.innerWidth
-  var percentY = event.clientY / window.innerHeight
-  
-  mouseX = percentX 
-  mouseY = percentY 
- console.log(mouseX,mouseY)
-}) 
-
-  //window.addEventListener('touchmove', function (event){
-    //mouseX = event.touches[0].pageX 
-    //mouseY = event.touches[0].pageY 
-
-    //mouseX = mouseX / window.innerWidth
-    //mouseY = mouseY / window.innerHeight
-   //console.log(mouseX,mouseY)
-  //}) 
-
 GL.init(canvas, { alpha: false })
 
 const camera = new alfrid.CameraPerspective()
 camera.setPerspective(45 * Math.PI / 180, GL.aspectRatio, 0.01, 1000)
 const orbitalControl = new alfrid.OrbitalControl(camera, window, 5)
 orbitalControl.rx.value = orbitalControl.ry.value = 0.3
+
+var mouseX = 0;
+var mouseY = 0;
+
+var clickX;
+var clickY;
+
+
+
+//conct remote control with the phone
+//receive data of x and y position
+window.addEventListener('touchmove', function (event){
+  mouseX = event.touches[0].pageX 
+  mouseY = event.touches[0].pageY 
+
+  mouseX = mouseX / window.innerWidth
+  mouseY = mouseY / window.innerHeight
+  //console.log(mouseX,mouseY)
+}) 
+
+//receive data from x and y position and adding the click event
+window.addEventListener('touchstart', function (e){
+  clickX = e.touches[0].pageX;
+  clickY = e.touches[0].pageY;
+
+  clickX = clickX / window.innerWidth
+  clickY = clickY / window.innerHeight
+
+
+  var objClick = {
+    clickX : clickX,
+    clickY : clickY
+  }
+
+  socket.emit('clicked', objClick)
+
+  console.log('clicked', objClick)
+})
+
 
 const bAxis = new alfrid.BatchAxis()
 const bDots = new alfrid.BatchDotsPlane()
@@ -82,7 +100,10 @@ function render () {
     touchY : mouseY
   }
 
+  
+
   socket.emit('touch',objTouch)
+  
 
   socket.emit('cameramove',{
     view: camera.matrix,

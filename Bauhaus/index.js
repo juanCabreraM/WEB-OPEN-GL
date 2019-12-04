@@ -14,36 +14,67 @@ const loadObj = require('./utils/loadObj.js')
 const io = require('socket.io-client')
 
 // PUT YOUR IP HERE TOO
-const socket = io('http://10.98.28.76:9876')
-//const socket = io('http://192.168.43.155:9876')
+//const socket = io('http://10.97.247.72:9967')
+//const socket = io('http://10.98.28.76:9876')
+const socket = io('http://192.168.43.155:9876')
 
 function map (value, start, end, newStart, newEnd){
     var percent = (value - start) / (end - start)
-    if(percent<1){
+    if(percent<0){
         percent = 0
     }
     if(percent>1){
         percent = 1
     }
-    var newValue = newStart + (newEnd - newStart) + percent
+    var newValue = newStart + (newEnd - newStart) * percent
     return newValue
 }
 
 //define the mouseX and mouseY variables
-var mouseX=0
-var mouseY=0
+var mouseX=0.0;
+var mouseY=0.0;
+
+var clickedX = 0.0;
+var clickedY = 0.0;
+var time2 = 0.0;
 
 
-//control de camara with a remote control 
+socket.on('clicked', function(objClick){
+    if (time2 > 0.25){
+        time2 = 0.01;
+        var moveRange = 500
+
+        clickedX = (objClick.clickX-0.5) * moveRange
+        clickedY = -(objClick.clickY-0.5) * moveRange
+
+        //clickedX = map(objClick.clickX, 0, window.innerWidth, -r, r)
+        //clickedY = map(objClick.clickY, 0, window.innerHeight, -r, r)
+        console.log(' reset ' ,clickedX, clickedY)
+        //clickedX = objClick.clickX
+        //clickedY = objClick.clickY
+        //time2 = 0.0;
+    }
+
+})
+
+
+//control the mouse position with a remote control 
 socket.on('touch', function (objTouch) {
-    var moveRange = 100
-
-    //x = map (objTouch.touchX, 0, 1, 0, 1)
-    //y = map (objTouch.touchY, 0, 1, 0, 1)
+    var moveRange = 200
 
     mouseX = (objTouch.touchX-0.5) * moveRange
     mouseY = -(objTouch.touchY-0.5) * moveRange
-    console.log(mouseX, mouseY)
+
+    //var x = (objTouch.touchX-0.5);
+    //var y = (objTouch.touchY-0.5);
+
+    //mouseX = map (x, 0, window.innerWidth, -1, 1)
+    //mouseY = -map (y, 0, window.innerHeight, -1, 1)
+
+   // mouseX = mouseX * moveRange; 
+    //mouseY = mouseY * moveRange;
+
+    //console.log(mouseX, mouseY)
 })
 
 //////////////////////////////////////////////////////////////////
@@ -89,8 +120,9 @@ loadObj('./assets/cube.obj', function(obj){
             uProjectionMatrix: regl.prop('projection'),
             uViewMatrix: regl.prop('view'),
             uTranslate: regl.prop('translate'),
-            uScale: regl.prop('cubeScale'),
-            uMouse: regl.prop('mouseMo')
+            uMouse: regl.prop('mouseMo'),
+            uClick: regl.prop('clicked'), 
+            uClickTime: regl.prop('clickTime')
         },
 
         vert:vertexShader,
@@ -100,50 +132,49 @@ loadObj('./assets/cube.obj', function(obj){
     })
 })
 
-
-
-
 //////////////////////////////////////////////////////////////////
 //define the render function
 function render (){
-    //define the time for each frame
-
-	
+    
     clear()
     //set the movment that the camera will have if it is required
     var cameraRad = 2;
     var cameraX = Math.sin(currTime)*cameraRad
     var cameraY = Math.cos(currTime)*cameraRad
     //define the camara movment and interaction with the mouse
-    mat4.lookAt(viewMatrix, [cameraX,cameraY,100], [0,0,0], [0,1,0])
+    mat4.lookAt(viewMatrix, [cameraX,cameraY,130], [0,0,0], [0,1,0])
     //clear the drawing for each frame
     currTime += 0.01
+    time2 += 0.01
+   
 
     if (drawCube !== undefined){
-        var num = 80;
+        var num = 100;
         var sizeCube = 4.5;
         var start = -num / 2 * sizeCube ;
 
         for (i = 0; i< num; i++){
-            for (j = 0; j < num; j++){
-               
+             for (j = 0; j < num; j++){
+           
                 //make the grid centered
                 var x = start + i * sizeCube;
                 var y = start + j * sizeCube;
-                                                  
+                
                 //draw the object
                 var obj = {
-                 time: currTime,
-                 projection: projectionMatrix,
-                 view: viewMatrix,
-                 translate: [x,y,1],
-                 cubeScale: [0,0,0],
-                 mouseMo: [mouseX ,mouseY,0]
-                } 
+                    time: currTime,
+                    projection: projectionMatrix,
+                    view: viewMatrix,
+                    translate: [x,y,1],                 
+                    mouseMo: [mouseX ,mouseY,0],  
+                    clicked:[clickedX,clickedY,0],
+                    clickTime : time2,               
+                }                                                  
+            
              drawCube(obj) 
             }
         }
-    }   
+    }    
     
     window.requestAnimationFrame(render)
 }

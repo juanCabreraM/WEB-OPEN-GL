@@ -4,7 +4,7 @@ const io = require('socket.io-client')
 const GL = alfrid.GL
 
 // PUT YOUR OWN IP HERE
-const socket = io('http://10.97.80.223:9876')
+const socket = io('http://10.97.231.186:9876')
 
 const canvas = document.createElement('canvas')
 document.body.appendChild(canvas)
@@ -20,6 +20,17 @@ const camera = new alfrid.CameraPerspective()
 camera.setPerspective(45 * Math.PI / 180, GL.aspectRatio, 0.01, 1000)
 const orbitalControl = new alfrid.OrbitalControl(camera, window, 5)
 orbitalControl.rx.value = orbitalControl.ry.value = 0.3
+
+// mouse position
+window.addEventListener('mousemove', (e) => {
+  const mouseX = e.clientX / window.innerWidth
+  const mouseY = e.clientY / window.innerHeight
+
+  socket.emit('mousemove', {
+    x: mouseX,
+    y: mouseY
+  })
+})
 
 const bAxis = new alfrid.BatchAxis()
 const bDots = new alfrid.BatchDotsPlane()

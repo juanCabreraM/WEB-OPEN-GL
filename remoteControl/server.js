@@ -28,6 +28,12 @@ function _onConnected (socket) {
 
   dispatch(socket, 'cameramove')
   dispatch(socket, 'tilt')
+
+  // same as using the 'dispatch function above'
+
+  socket.on('mousemove', function (obj) {
+    io.emit('mousemove', obj)
+  })
 }
 
 function _onDisconnected () {
@@ -43,6 +49,10 @@ receiver.on('/server/disconnect', function () {
   console.log('OSC disconnected')
 })
 
-receiver.on('/mousemove', function (x, y) {
-  console.log('OSC mouse move ', x, y)
+receiver.on('/mousemove', function (mouseX, mouseY) {
+  console.log('OSC mouse move ', mouseX, mouseY)
+  io.emit('mousemove',{
+    x: mouseX,
+    y: mouseY
+  })
 })

@@ -6,6 +6,7 @@ module.exports =
   varying vec2 vUV;
   varying float vNoiseX;
   varying float vNoiseY;
+
   
   const vec3 color0 = vec3 (242.0,192.0,41.0)/255.0;
   const vec3 color1 = vec3 (58.0,70.0,140.0)/255.0;
@@ -30,8 +31,8 @@ module.exports =
   	if (x < 0.25 || y<0.25){
   		color = color2;
   	}
-  	
-  	
+
+      	
     gl_FragColor = vec4(color,1.0);
 }
 `

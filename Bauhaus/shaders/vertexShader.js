@@ -8,10 +8,11 @@ attribute vec2 aUV;
 uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
 uniform vec3 uMouse;
-
+uniform vec3 uClick;
+uniform float uClickTime;
 uniform float uTime;
 uniform vec3 uTranslate;
-//uniform vec3 uScale;
+
 
 varying vec3 vColor;
 varying vec2 vUV;
@@ -106,29 +107,39 @@ vec3 hash3( vec2 p ){
 }
 
 void main() {
-  
-  //float diastance = Map.
 
+  vec3 pos = aPositions;
+  //vec3 mouseClicked = uClick;
+
+  //offset of mouse position to scale objects
 
   vec3 mousePos = uMouse;
   float distToMouse = distance(mousePos, uTranslate);
-  float maxRadius = 30.0;
-  float minRadius = 1.0;
-  float mouseScale= sin(maxRadius + uTime*4.0);
-  maxRadius += mouseScale*15.0;
-  float radiusScale = smoothstep(minRadius, maxRadius, distToMouse);
+  float maxRadius = 25.0;
+  float minRadius = 0.05;
+  float mouseScale= sin(minRadius + uTime * 6.0);
+  minRadius += mouseScale*15.0;
+  float radiusScale = smoothstep(maxRadius, minRadius, distToMouse);
+
+  //defining circular wave with a mouse uClick
+
+  vec3  centerMouse = uClick ;
+  float r = 10.0* uClickTime*2.0;
+  float distWave = distance(centerMouse, uTranslate);
+  float maxCircle = 20.0 + r;
+  float minCircle = 10.0 + r;
+  float bigCircleWave = smoothstep(minCircle, maxCircle, distWave);
+  float smalCircleWave = smoothstep(maxCircle, minCircle, distWave);
+  float negative = (bigCircleWave * smalCircleWave)*3.0;
 
 
-
-  vec3 pos = aPositions;
-
-  float noiseX = cnoise(uTranslate + uTime * 0.2) * .5 + .5;
+  float noiseX = cnoise(uTranslate + uTime * 0.5) * .5 + .5;
   float noiseY = cnoise(uTranslate.zyx + uTime * 0.2) * .5 + .5;
   
-  //pos *= uScale;
+  
   pos.x *= noiseX * 3.0;
   pos.y *= noiseY * 3.0;
-  pos.xy *= radiusScale;
+  pos.xy *= radiusScale + negative;
   pos += uTranslate; 
 
   gl_Position = uProjectionMatrix * uViewMatrix * vec4(pos, 1.0);   

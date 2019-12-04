@@ -5,7 +5,7 @@ const glm = require('gl-matrix')
 const io = require('socket.io-client')
 
 // PUT YOUR IP HERE TOO
-const socket = io('http://10.97.80.223:9876')
+const socket = io('http://10.97.231.186:9876')
 
 socket.on('cameramove', function (objReceived) {
   // o.view is the view matrix from the remote control
@@ -18,6 +18,10 @@ socket.on('cameramove', function (objReceived) {
 
 socket.on('tilt', function (o) {
   console.log('on tilt', o)
+})
+
+socket.on('mousemove', function (obj) {
+  console.log('mousemove', obj)
 })
 
 const strVert = require('./shaders/vert.js')

@@ -1,14 +1,18 @@
 // server.js
 
-//crear el servidos
+//WEB SOCKETS
 const PORT_SOCKET = 9876
 const app = require('express')()
 const server = app.listen(PORT_SOCKET)
-
-//metodo de comunicacion
 const io = require('socket.io')(server)
 
-// WEB SOCKETS
+// OSC 
+const PORT_OSC = 32000
+const OscReceiver = require('osc-receiver')
+const receiver = new OscReceiver()
+receiver.bind(PORT_OSC)
+
+// WEB SOCKETS event lisstener
 
 io.on('connection', (socket) => _onConnected(socket))
 
@@ -26,13 +30,15 @@ function _onConnected (socket) {
   //getting event/data from remote control
   //conection remote to server
   socket.on('touch', function (objTouch){
-    //if(Math.random()>0.99){
-      //console.log('obj received : ',objTouch)
-    //}
-    
+   
     //sending event/data to front end
     //conection server to frontend
     io.emit('touch', objTouch)
+  })
+
+  socket.on('clicked', function(objClick){
+    io.emit('clicked', objClick)
+    console.log('clicked', objClick)
   })
 
   dispatch(socket, 'cameramove')
@@ -40,5 +46,14 @@ function _onConnected (socket) {
 }
 
 function _onDisconnected () {
-  //console.log('A user is disconnected')
+  console.log('A user is disconnected')
 }
+
+// EVENT LISTENERS FROM OSC
+receiver.on('/mousemove', function (mouseX, mouseY) {
+  console.log('OSC mouse move ', mouseX, mouseY)
+  io.emit('mousemove', {
+    x: mouseX,
+    y: mouseY
+  })
+})
