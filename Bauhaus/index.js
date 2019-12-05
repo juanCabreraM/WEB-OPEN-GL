@@ -18,18 +18,6 @@ const io = require('socket.io-client')
 //const socket = io('http://10.98.28.76:9876')
 const socket = io('http://192.168.43.155:9876')
 
-function map (value, start, end, newStart, newEnd){
-    var percent = (value - start) / (end - start)
-    if(percent<0){
-        percent = 0
-    }
-    if(percent>1){
-        percent = 1
-    }
-    var newValue = newStart + (newEnd - newStart) * percent
-    return newValue
-}
-
 //define the mouseX and mouseY variables
 var mouseX=0.0;
 var mouseY=0.0;
@@ -38,50 +26,31 @@ var clickedX = 0.0;
 var clickedY = 0.0;
 var time2 = 0.0;
 
-
 socket.on('clicked', function(objClick){
     if (time2 > 0.25){
         time2 = 0.01;
-        var moveRange = 500
+        var moveRangeX = 370
+        var moveRangeY = 200
 
-        clickedX = (objClick.clickX-0.5) * moveRange
-        clickedY = -(objClick.clickY-0.5) * moveRange
-
-        //clickedX = map(objClick.clickX, 0, window.innerWidth, -r, r)
-        //clickedY = map(objClick.clickY, 0, window.innerHeight, -r, r)
-        console.log(' reset ' ,clickedX, clickedY)
-        //clickedX = objClick.clickX
-        //clickedY = objClick.clickY
-        //time2 = 0.0;
+        clickedX = (objClick.clickX-0.5) * moveRangeX
+        clickedY = -(objClick.clickY-0.5) * moveRangeY
+        console.log('reset', clickedX, clickedY)
     }
-
 })
-
 
 //control the mouse position with a remote control 
 socket.on('touch', function (objTouch) {
-    var moveRange = 200
+    var moveRangeX = 370
+    var moveRangeY = 200
 
-    mouseX = (objTouch.touchX-0.5) * moveRange
-    mouseY = -(objTouch.touchY-0.5) * moveRange
-
-    //var x = (objTouch.touchX-0.5);
-    //var y = (objTouch.touchY-0.5);
-
-    //mouseX = map (x, 0, window.innerWidth, -1, 1)
-    //mouseY = -map (y, 0, window.innerHeight, -1, 1)
-
-   // mouseX = mouseX * moveRange; 
-    //mouseY = mouseY * moveRange;
-
-    //console.log(mouseX, mouseY)
+    mouseX = (objTouch.touchX-0.5) * moveRangeX
+    mouseY = -(objTouch.touchY-0.5) * moveRangeY
 })
 
 //////////////////////////////////////////////////////////////////
 //camera settings 
 // create and define the projection matrix of the camera image
 var projectionMatrix = mat4.create()
-
 var fovy = 75 * Math.PI/180;
 var aspect = window.innerWidth / window.innerHeight
 var near = 0.01;
@@ -122,7 +91,7 @@ loadObj('./assets/cube.obj', function(obj){
             uTranslate: regl.prop('translate'),
             uMouse: regl.prop('mouseMo'),
             uClick: regl.prop('clicked'), 
-            uClickTime: regl.prop('clickTime')
+            uClickTime1: regl.prop('clickTime1')
         },
 
         vert:vertexShader,
@@ -145,8 +114,7 @@ function render (){
     mat4.lookAt(viewMatrix, [cameraX,cameraY,130], [0,0,0], [0,1,0])
     //clear the drawing for each frame
     currTime += 0.01
-    time2 += 0.01
-   
+    time2 += 0.01   
 
     if (drawCube !== undefined){
         var num = 100;
@@ -168,7 +136,7 @@ function render (){
                     translate: [x,y,1],                 
                     mouseMo: [mouseX ,mouseY,0],  
                     clicked:[clickedX,clickedY,0],
-                    clickTime : time2,               
+                    clickTime1 : time2,               
                 }                                                  
             
              drawCube(obj) 
@@ -189,7 +157,4 @@ window.addEventListener('resize', function (){
 
     var viewMatrix = mat4.create()
     mat4.lookAt(viewMatrix, [0,0,2], [0,0,0], [0,1,0])
-})
-
-
-               
+})               

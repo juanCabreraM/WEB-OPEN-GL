@@ -9,7 +9,8 @@ uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
 uniform vec3 uMouse;
 uniform vec3 uClick;
-uniform float uClickTime;
+uniform float uClickTime1;
+//uniform float uClickTime2;
 uniform float uTime;
 uniform vec3 uTranslate;
 
@@ -109,8 +110,7 @@ vec3 hash3( vec2 p ){
 void main() {
 
   vec3 pos = aPositions;
-  //vec3 mouseClicked = uClick;
-
+  
   //offset of mouse position to scale objects
 
   vec3 mousePos = uMouse;
@@ -123,15 +123,28 @@ void main() {
 
   //defining circular wave with a mouse uClick
 
-  vec3  centerMouse = uClick ;
-  float r = 10.0* uClickTime*2.0;
-  float distWave = distance(centerMouse, uTranslate);
-  float maxCircle = 20.0 + r;
-  float minCircle = 10.0 + r;
-  float bigCircleWave = smoothstep(minCircle, maxCircle, distWave);
-  float smalCircleWave = smoothstep(maxCircle, minCircle, distWave);
-  float negative = (bigCircleWave * smalCircleWave)*3.0;
+  vec3  centerMouse1 = uClick ;
+  float r1 = 10.0* uClickTime1*2.0;
+  float distWave1 = distance(centerMouse1, uTranslate);
+  float maxCircle1 = 20.0 + r1;
+  float minCircle1 = 10.0 + r1;
+  float bigCircleWave1 = smoothstep(minCircle1, maxCircle1, distWave1);
+  float smalCircleWave1 = smoothstep(maxCircle1, minCircle1, distWave1);
+  float negative1 = (bigCircleWave1 * smalCircleWave1)*3.0;
 
+  //vec3  centerMouse2 = uClick ;
+  //float r2 = 10.0* uClickTime2*2.0;
+  //float distWave2 = distance(centerMouse2, uTranslate);
+  //float maxCircle2 = 20.0 + r2;
+  //float minCircle2 = 10.0 + r2;
+  //float bigCircleWave2 = smoothstep(minCircle2, maxCircle2, distWave2);
+  //float smalCircleWave2 = smoothstep(maxCircle2, minCircle2, distWave2);
+  //float negative2 = (bigCircleWave2 * smalCircleWave2)*3.0;
+
+ 
+
+
+  float negative = negative1;
 
   float noiseX = cnoise(uTranslate + uTime * 0.5) * .5 + .5;
   float noiseY = cnoise(uTranslate.zyx + uTime * 0.2) * .5 + .5;
@@ -139,7 +152,7 @@ void main() {
   
   pos.x *= noiseX * 3.0;
   pos.y *= noiseY * 3.0;
-  pos.xy *= radiusScale + negative;
+  pos.xy *= radiusScale + negative1;
   pos += uTranslate; 
 
   gl_Position = uProjectionMatrix * uViewMatrix * vec4(pos, 1.0);   

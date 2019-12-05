@@ -29,8 +29,6 @@ var mouseY = 0;
 var clickX;
 var clickY;
 
-
-
 //conct remote control with the phone
 //receive data of x and y position
 window.addEventListener('touchmove', function (event){
@@ -50,15 +48,11 @@ window.addEventListener('touchstart', function (e){
   clickX = clickX / window.innerWidth
   clickY = clickY / window.innerHeight
 
-
   var objClick = {
     clickX : clickX,
     clickY : clickY
   }
-
-  socket.emit('clicked', objClick)
-
-  console.log('clicked', objClick)
+  socket.emit('clicked', objClick)  
 })
 
 
@@ -98,12 +92,9 @@ function render () {
   var objTouch = {
     touchX : mouseX,
     touchY : mouseY
-  }
+  } 
 
-  
-
-  socket.emit('touch',objTouch)
-  
+  socket.emit('touch',objTouch)  
 
   socket.emit('cameramove',{
     view: camera.matrix,
