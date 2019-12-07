@@ -1,0 +1,15 @@
+Concept
+
+The idea is to represent movement in time, you can control one dot
+in space and create a trace in time corresponding leaving a marc of
+dots and waves like water drops falling.
+
+For that I create a grid of 3D objects and play with the scale of
+them in order to create each dot and link the wave with the centre
+of the static dots. The colour is based in the Bauhaus basic pantones. 
+
+In order to control the movement I connect a remote control, in this
+case use a phone, that remote control the movement of the dot by
+tracing the touch position of the screen, additionally every time
+you tap or click in the screen create a new static dot and trigger
+the respective wave.
