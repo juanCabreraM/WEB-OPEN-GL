@@ -1,24 +1,45 @@
 module.exports =
 `
 precision mediump float;
+
+//atribute set up in the frontend
 attribute vec3 aPositions;
 attribute vec2 aUV;
 
-
+//unifroms for camera settings
 uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
+
+//unoforms for mouse position used for the dots
 uniform vec3 uMouse;
-uniform vec3 uClick;
+uniform vec3 uMouse1;
+uniform vec3 uMouse2;
+uniform vec3 uMouse3;
+
+//uniform for click position of the mouse to set wave position
+uniform vec3 uClick1;
+uniform vec3 uClick2;
+uniform vec3 uClick3;
+
+//uniform for the time used for for wave animation
 uniform float uClickTime1;
-//uniform float uClickTime2;
+uniform float uClickTime2;
+uniform float uClickTime3;
+
+//uniform for time to scale dots
 uniform float uTime;
+
+//uniform for the position of the 3D objects
 uniform vec3 uTranslate;
 
-
+// varying to give data to the frag shader
 varying vec3 vColor;
 varying vec2 vUV;
 varying float vNoiseX;
 varying float vNoiseY;
+
+//////////////////////////////////////////////////////////////////////////
+//set noise function to modiffy 3D object in the frontend
 
 //  Classic Perlin 3D Noise 
 //  by Stefan Gustavson
@@ -107,12 +128,14 @@ vec3 hash3( vec2 p ){
   return fract(sin(q)*43758.5453);
 }
 
+//set up vertex shader function called in the frontend
 void main() {
 
+  //define objects positions 
   vec3 pos = aPositions;
   
-  //offset of mouse position to scale objects
-
+  //set radius from the mouse and deffine objects position to scale them
+  //create dot that follow the mouse position
   vec3 mousePos = uMouse;
   float distToMouse = distance(mousePos, uTranslate);
   float maxRadius = 25.0;
@@ -121,9 +144,37 @@ void main() {
   minRadius += mouseScale*15.0;
   float radiusScale = smoothstep(maxRadius, minRadius, distToMouse);
 
-  //defining circular wave with a mouse uClick
+  //create first staticdot after the first click
+  vec3 mousePos1 = uMouse1;
+  float distToMouse1 = distance(mousePos1, uTranslate);
+  float maxRadius1 = 25.0;
+  float minRadius1 = 0.05;
+  float mouseScale1= sin(minRadius1 + uTime * 6.0);
+  minRadius1 += mouseScale1*15.0;
+  float radiusScale1 = smoothstep(maxRadius1, minRadius1, distToMouse1);
 
-  vec3  centerMouse1 = uClick ;
+  //create second static dot after the second click
+  vec3 mousePos2 = uMouse2;
+  float distToMouse2 = distance(mousePos2, uTranslate);
+  float maxRadius2 = 25.0;
+  float minRadius2 = 0.05;
+  float mouseScale2= sin(minRadius2 + uTime * 8.0);
+  minRadius2 += mouseScale2*15.0;
+  float radiusScale2 = smoothstep(maxRadius2, minRadius2, distToMouse2);
+
+  //create third static dot after the third click
+  vec3 mousePos3 = uMouse3;
+  float distToMouse3 = distance(mousePos3, uTranslate);
+  float maxRadius3 = 25.0;
+  float minRadius3 = 0.05;
+  float mouseScale3= sin(minRadius3 + uTime * 4.0);
+  minRadius3 += mouseScale3*15.0;
+  float radiusScale3 = smoothstep(maxRadius3, minRadius3, distToMouse3);
+  //create variable that contain all statics dots
+  float totalRadScale = radiusScale + radiusScale1 + radiusScale2 + radiusScale3;
+
+  //defining first circular wave with first mouse uClick
+  vec3  centerMouse1 = uClick1 ;
   float r1 = 10.0* uClickTime1*2.0;
   float distWave1 = distance(centerMouse1, uTranslate);
   float maxCircle1 = 20.0 + r1;
@@ -132,33 +183,45 @@ void main() {
   float smalCircleWave1 = smoothstep(maxCircle1, minCircle1, distWave1);
   float negative1 = (bigCircleWave1 * smalCircleWave1)*3.0;
 
-  //vec3  centerMouse2 = uClick ;
-  //float r2 = 10.0* uClickTime2*2.0;
-  //float distWave2 = distance(centerMouse2, uTranslate);
-  //float maxCircle2 = 20.0 + r2;
-  //float minCircle2 = 10.0 + r2;
-  //float bigCircleWave2 = smoothstep(minCircle2, maxCircle2, distWave2);
-  //float smalCircleWave2 = smoothstep(maxCircle2, minCircle2, distWave2);
-  //float negative2 = (bigCircleWave2 * smalCircleWave2)*3.0;
+  //defining second circular wave with second mouse uClick
+  vec3  centerMouse2 = uClick2 ;
+  float r2 = 10.0* uClickTime2*5.0;
+  float distWave2 = distance(centerMouse2, uTranslate);
+  float maxCircle2 = 20.0 + r2;
+  float minCircle2 = 10.0 + r2;
+  float bigCircleWave2 = smoothstep(minCircle2, maxCircle2, distWave2);
+  float smalCircleWave2 = smoothstep(maxCircle2, minCircle2, distWave2);
+  float negative2 = (bigCircleWave2 * smalCircleWave2)*3.0;
 
- 
+  //defining third circular wave with third mouse uClick
+  vec3  centerMouse3 = uClick3 ;
+  float r3 = 10.0* uClickTime3*4.0;
+  float distWave3 = distance(centerMouse3, uTranslate);
+  float maxCircle3 = 20.0 + r3;
+  float minCircle3 = 10.0 + r3;
+  float bigCircleWave3 = smoothstep(minCircle3, maxCircle3, distWave3);
+  float smalCircleWave3 = smoothstep(maxCircle3, minCircle3, distWave3);
+  float negative3 = (bigCircleWave3 * smalCircleWave3)*3.0;
 
+  //create variable that contain all waves motion
+  float negative = negative1 + negative2 + negative3 ;
 
-  float negative = negative1;
-
+  //create variables in order to apply change in x and y objects position
   float noiseX = cnoise(uTranslate + uTime * 0.5) * .5 + .5;
   float noiseY = cnoise(uTranslate.zyx + uTime * 0.2) * .5 + .5;
-  
-  
+
+  //apply noise to x and y position
   pos.x *= noiseX * 3.0;
   pos.y *= noiseY * 3.0;
-  pos.xy *= radiusScale + negative1;
+
+  //visualice all dots and waves in the frontend
+  pos.xy *= totalRadScale + negative;
   pos += uTranslate; 
 
-  gl_Position = uProjectionMatrix * uViewMatrix * vec4(pos, 1.0);   
-
-  //vColor = aColor;
-  vUV = aUV;
+  //define vertex shader to call in the frontend
+  gl_Position = uProjectionMatrix * uViewMatrix * vec4(pos, 1.0); 
+  
+  //data to transmit to the fragment shader and apply color
   vNoiseX = noiseX;
   vNoiseY = noiseY;
 }				

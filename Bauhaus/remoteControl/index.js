@@ -3,11 +3,10 @@ const alfrid = require('alfrid')
 const io = require('socket.io-client')
 const GL = alfrid.GL
 
-// PUT YOUR OWN IP HERE
-//const socket = io('http://10.97.247.72:9967')
-//const socket = io('http://10.97.231.186:9876')
+// PUT YOUR OWN IP HERE conect with fronend 
 const socket = io('http://192.168.43.155:9876')
 
+//define remote control canvas
 const canvas = document.createElement('canvas')
 document.body.appendChild(canvas)
 canvas.style.position = 'fixed'
@@ -15,17 +14,19 @@ canvas.style.margin = 0
 canvas.style.padding = 0
 canvas.style.top = 0
 canvas.style.left = 0
-
 GL.init(canvas, { alpha: false })
 
+//define camara settings
 const camera = new alfrid.CameraPerspective()
 camera.setPerspective(45 * Math.PI / 180, GL.aspectRatio, 0.01, 1000)
 const orbitalControl = new alfrid.OrbitalControl(camera, window, 5)
 orbitalControl.rx.value = orbitalControl.ry.value = 0.3
 
+//mouse position first data to transmit
 var mouseX = 0;
 var mouseY = 0;
 
+//mouse click position for touch or click mouse
 var clickX;
 var clickY;
 
@@ -34,20 +35,18 @@ var clickY;
 window.addEventListener('touchmove', function (event){
   mouseX = event.touches[0].pageX 
   mouseY = event.touches[0].pageY 
-
   mouseX = mouseX / window.innerWidth
-  mouseY = mouseY / window.innerHeight
-  //console.log(mouseX,mouseY)
+  mouseY = mouseY / window.innerHeight  
 }) 
 
 //receive data from x and y position and adding the click event
 window.addEventListener('touchstart', function (e){
   clickX = e.touches[0].pageX;
   clickY = e.touches[0].pageY;
-
   clickX = clickX / window.innerWidth
   clickY = clickY / window.innerHeight
 
+  //create obj for the click event
   var objClick = {
     clickX : clickX,
     clickY : clickY
@@ -55,10 +54,10 @@ window.addEventListener('touchstart', function (e){
   socket.emit('clicked', objClick)  
 })
 
-
 const bAxis = new alfrid.BatchAxis()
 const bDots = new alfrid.BatchDotsPlane()
 
+//define shaders for the remote control
 const fs = `
 precision mediump float;
 
@@ -77,6 +76,7 @@ void main() {
   gl_FragColor = vec4(vec3(d), 1.0);
 }
 `
+
 const drawCube = new alfrid.Draw()
   .setMesh(alfrid.Geom.cube(1, 1, 1))
   .useProgram(alfrid.ShaderLibs.basicVert, fs)

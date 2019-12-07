@@ -38,7 +38,7 @@ function _onConnected (socket) {
 
   socket.on('clicked', function(objClick){
     io.emit('clicked', objClick)
-    console.log('clicked', objClick)
+    //console.log('clicked', objClick)
   })
 
   dispatch(socket, 'cameramove')
